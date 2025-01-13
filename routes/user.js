@@ -2,9 +2,13 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-
+const SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 const router = express.Router();
+const bodyParser = require("body-parser");
+
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }));
 
 router.get("/signin", (req, res) => {
   res.render("signin");
@@ -25,7 +29,7 @@ router.get("/signup", (req, res) => {
   // }
 });
 
-router.post("/register", async (req, res) => {
+router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -43,21 +47,27 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      console.log(`User not found with email: ${email}`);
+      return res.status(404).render("signin", { errorMessage: "User not found" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      console.log(`Invalid password for user: ${email}`);
+      return res.status(401).render("signin", { errorMessage: "Invalid password" });
     }
 
     const token = jwt.sign({ id: user._id }, SECRET, { expiresIn: "1h" });
-    res.json({ token });
+    res.cookie('token', token, { httpOnly: true });
+    res.redirect('/');
+
   } catch (err) {
+    console.error(`Error logging in: ${err.message}`);
     res.status(500).json({ error: "Error logging in", details: err.message });
   }
 });
+
 
 module.exports = router;

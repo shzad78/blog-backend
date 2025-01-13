@@ -3,6 +3,13 @@ const path = require("path");
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const userRoutes = require("./routes/user"); // Import the user route
+const { console } = require("inspector");
+require("dotenv").config(
+  { path: __dirname + "/.env" }
+);
+
+const SECRET = process.env.JWT_SECRET
+console.log(SECRET);
 
 mongoose
   .connect("mongodb://localhost:27017/blogify", {})

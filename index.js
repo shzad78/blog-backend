@@ -4,11 +4,9 @@ const mongoose = require("mongoose");
 const User = require("./models/user");
 const userRoutes = require("./routes/user"); // Import the user route
 const { console } = require("inspector");
-require("dotenv").config(
-  { path: __dirname + "/.env" }
-);
+require("dotenv").config({ path: __dirname + "/.env" });
 
-const SECRET = process.env.JWT_SECRET
+const SECRET = process.env.JWT_SECRET;
 console.log(SECRET);
 
 mongoose
@@ -34,6 +32,8 @@ app.get("/", (req, res) => {
 app.get("/signin", (req, res) => {
   res.render("signin");
 });
+user = req.user;
+console.log(JSON.stringify(user));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

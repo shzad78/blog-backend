@@ -75,7 +75,7 @@ router.post("/signin", async (req, res) => {
     res.cookie("token", token, { httpOnly: true });
     res.redirect("/");
     console.log(token);
-    return token;
+    
   } catch (err) {
     console.error(`Error logging in: ${err.message}`);
     res.status(500).json({ error: "Error logging in", details: err.message });

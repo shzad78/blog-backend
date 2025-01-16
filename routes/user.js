@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -71,11 +71,11 @@ router.post("/login", async (req, res) => {
         .render("signin", { errorMessage: "Invalid password" });
     }
 
+    const token = createToken(user);
     res.cookie("token", token, { httpOnly: true });
     res.redirect("/");
-    const token = createToken(user);
-    return token;
     console.log(token);
+    return token;
   } catch (err) {
     console.error(`Error logging in: ${err.message}`);
     res.status(500).json({ error: "Error logging in", details: err.message });

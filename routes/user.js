@@ -74,12 +74,17 @@ router.post("/signin", async (req, res) => {
     const token = createToken(user);
     res.cookie("token", token, { httpOnly: true });
     res.redirect("/");
+    return token;
     console.log(token);
-    
   } catch (err) {
     console.error(`Error logging in: ${err.message}`);
     res.status(500).json({ error: "Error logging in", details: err.message });
   }
+});
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  return res.redirect("/");
 });
 
 module.exports = router;

@@ -29,26 +29,51 @@ const PORT = 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
-
+app.use("/user", userRoutes);
 // Add these middleware before routes
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser()); // Add cookie-parser middleware
 
-// Use middleware to check for auth cookie
-app.use(checkForAuthCookie("token"));
+// Add this middleware before your routes to make user available to all views
+app.use((req, res, next) => {
+  const token = req.cookies.token;
+  if (token) {
+    try {
+      const userData = validateToken(token);
+      // Simplify the user object structure by storing just the user data
+      res.locals.user = userData.user;
+    } catch (error) {
+      console.log("Token validation error:", error);
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+  next();
+});
+
+// Add before your routes
+app.use((req, res, next) => {
+  res.locals.path = req.path;
+  next();
+});
 
 // Then add routes
-app.use("/user", userRoutes);
 
 // Remove duplicate root route and combine with auth check
 app.get("/", (req, res) => {
-  res.render("home", { user: req.user });
+  res.render("home");
 });
 
 app.get("/signin", (req, res) => {
   res.render("signin");
 });
+
+// Add authentication middleware only for protected routes
+// Add this before any protected routes
+app.use("/protected", checkForAuthCookie("token"));
+// Add other protected routes here...
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

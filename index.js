@@ -40,9 +40,10 @@ app.use((req, res, next) => {
   const token = req.cookies.token;
   if (token) {
     try {
-      const userData = validateToken(token);
-      // Simplify the user object structure by storing just the user data
-      res.locals.user = userData.user;
+      const validatedData = validateToken(token);
+      console.log("Token validation result:", validatedData);
+      // Store just the user data, not the whole token object
+      res.locals.user = validatedData.user;
     } catch (error) {
       console.log("Token validation error:", error);
       res.locals.user = null;

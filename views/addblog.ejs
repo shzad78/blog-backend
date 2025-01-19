@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head.ejs') %>
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Blog Title</label>
+        <input type="text" class="form-control" id="title" placeholder="Blog Title">
+      </div>
+      <div class="mb-3">
+        <label for="blogbody" class="form-label">Blog Text</label>
+        <textarea class="form-control" id="blogbody" rows="3"></textarea>
+      </div>
+
+    Home Page <%- include('./partials/scripts.ejs') %>
+  </body>
+</html>

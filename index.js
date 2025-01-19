@@ -3,6 +3,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const userRoutes = require("./routes/user");
+const blogRoutes = require("./routes/blog");
 // const { console } = require("inspector"); // Commented out this line
 require("dotenv").config({ path: __dirname + "/.env" });
 const cookieParser = require("cookie-parser");
@@ -14,7 +15,6 @@ const { checkForAuthCookie } = require("./middleware/authentication");
 
 const SECRET = process.env.JWT_SECRET;
 console.log(SECRET);
-
 mongoose
   .connect("mongodb://localhost:27017/blogify", {})
   .then(() => {
@@ -27,13 +27,16 @@ mongoose
 const app = express();
 const PORT = 3000;
 
+// Move middleware setup to the top, before any routes
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(cookieParser()); // Move cookie-parser before any routes
+
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 app.use("/user", userRoutes);
-// Add these middleware before routes
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(cookieParser()); // Add cookie-parser middleware
+// Protect blog routes by adding authentication middleware
+app.use("/blog", checkForAuthCookie("token"), blogRoutes); 
 
 // Add this middleware before your routes to make user available to all views
 app.use((req, res, next) => {
@@ -70,6 +73,7 @@ app.get("/", (req, res) => {
 app.get("/signin", (req, res) => {
   res.render("signin");
 });
+
 
 // Add authentication middleware only for protected routes
 // Add this before any protected routes
